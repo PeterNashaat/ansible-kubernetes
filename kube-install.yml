@@ -5,7 +5,7 @@
      command: swapoff -a
 
    - name: Create kernel file for iptables
-      file:
+     file:
         path: "/etc/modules-load.d/k8s.conf"
         state: "touch"
 
@@ -71,9 +71,9 @@
 
    - name: install and configure dependencies
      shell: |
-     sudo apt-get update
-     apt install -y kubelet=1.20.1-00 kubeadm=1.20.1-00 kubectl=1.20.1-00
-     sudo apt-mark hold kubelet kubeadm kubectl
+       sudo apt-get update
+       apt install -y kubelet=1.20.1-00 kubeadm=1.20.1-00 kubectl=1.20.1-00
+       sudo apt-mark hold kubelet kubeadm kubectl
 
 
 
