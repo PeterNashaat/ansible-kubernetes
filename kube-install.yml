@@ -51,12 +51,6 @@
          "storage-driver": "overlay2"
        }
 
-   - name: restarting the docker
-     shell: |
-       systemctl daemon-reload
-       systemctl restart docker
-       systemctl restart kubelet
-
    - name: add Kubernetes apt-key for APT repository
      apt_key:
        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -74,6 +68,12 @@
        sudo apt-get update
        apt install -y kubelet=1.20.1-00 kubeadm=1.20.1-00 kubectl=1.20.1-00
        sudo apt-mark hold kubelet kubeadm kubectl
+
+   - name: restarting the docker and kubelet
+     shell: |
+       systemctl daemon-reload
+       systemctl restart docker
+       systemctl restart kubelet
 
 
 
