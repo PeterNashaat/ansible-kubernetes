@@ -1,4 +1,4 @@
-- hosts: 'workers, masters'
+- hosts: all
   become: yes
 
   tasks:
@@ -14,4 +14,4 @@
     - name: setting up authorized keys for the ubuntu user
       authorized_key: user=ubuntu key="{{item}}"
       with_file:
-        - ~/.ssh/id_rsa.pub
+        - keys.pub

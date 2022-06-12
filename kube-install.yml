@@ -1,5 +1,6 @@
 - hosts: all
   become: yes
+  
   tasks:
    - name: Make the Swap inactive
      command: swapoff -a
