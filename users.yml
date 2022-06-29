@@ -2,7 +2,7 @@
   become: yes
 
   tasks:
-    - name: create the ubuntu user account
+    - name: create ubuntu user account
       user: name=ubuntu append=yes state=present createhome=yes shell=/bin/bash
 
     - name: allow 'ubuntu' to use sudo without needing a password
