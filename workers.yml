@@ -20,4 +20,13 @@
         chdir: $HOME
         creates: node_joined.txt
         
-        
+- hosts: masters
+  become: yes
+  gather_facts: false
+  - name: Enable deploying in master
+    shell: 
+        "kubectl taint nodes --all node-role.kubernetes.io/master-"
+
+ - name: Adding api server port range
+   shell:
+       "sed -i '/service-cluster-ip-range/a \      --service-node-port-range=50-64000' /etc/kubernetes/manifests/kube-apiserver.yaml"
