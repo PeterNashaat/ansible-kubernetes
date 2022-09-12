@@ -21,11 +21,12 @@
         dest: /home/ubuntu/.kube/config
         remote_src: yes
         owner: ubuntu
-    
+
     - name: copy admin.conf to ansible host
       fetch:
         src: /etc/kubernetes/admin.conf
-        dest: /opt/config
+        dest: /opt/
+
 
     - name: install Pod network
       become: yes
@@ -34,3 +35,11 @@
       args:
         chdir: $HOME
         creates: pod_setup.txt
+
+- name: a play that runs entirely on the ansible host
+  hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: copy admin.conf to ansible host
+      shell:
+              "mv /opt/master/etc/kubernetes/admin.conf ~/.kube/config"
