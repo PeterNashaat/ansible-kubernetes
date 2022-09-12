@@ -23,9 +23,9 @@
         owner: ubuntu
     
     - name: copy admin.conf to ansible host
-      ansible.builtin.fetch:
-        src: "/etc/kubernetes/admin.conf"
-        dest: "/opt/"
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: /opt/config
 
     - name: install Pod network
       become: yes
