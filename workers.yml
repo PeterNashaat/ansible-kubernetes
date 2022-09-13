@@ -22,11 +22,12 @@
         
 - hosts: masters
   become: yes
+  become_user: ubuntu
   gather_facts: false
   tasks:
     - name: Enable deploying in master
       shell: 
-           "kubectl taint nodes --all node-role.kubernetes.io/master-"
+           " kubectl taint nodes --all node-role.kubernetes.io/master-"
 
     - name: Adding api server port range
       shell:
