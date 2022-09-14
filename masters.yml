@@ -21,6 +21,7 @@
         dest: /home/ubuntu/.kube/config
         remote_src: yes
         owner: ubuntu
+        mode: 0755
 
     - name: copy admin.conf to ansible host
       fetch:
@@ -41,9 +42,7 @@
   connection: local
   tasks:
     - name: Copy admin.conf to ansible host
-      shell:
-              "mv /opt/master/etc/kubernetes/admin.conf ~/.kube/config"
-
-    - name: Securing .kube/config file
-      shell:
-              "chmod og-r /root/.kube/config"
+      copy:
+        src: "/opt/master/etc/kubernetes/admin.conf"
+        dest: "~/.kube/config"
+        mode: 0755
