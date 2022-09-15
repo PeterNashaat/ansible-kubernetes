@@ -30,8 +30,12 @@
            " kubectl taint nodes --all node-role.kubernetes.io/master-"
       ignore_errors: True
 
-    - name: Adding api server port range
-      lineinfile:
-        dest: "/etc/kubernetes/manifests/kube-apiserver.yaml"
-        insertafter: "service-cluster-ip-range"
-        line: "    - --service-node-port-range=50-64000"
+- hosts: masters
+  become: yes
+  become_user: root
+  tasks:
+   - name: Adding api server port range
+     lineinfile:
+       dest: "/etc/kubernetes/manifests/kube-apiserver.yaml"
+       insertafter: "service-cluster-ip-range"
+       line: "    - --service-node-port-range=50-64000"
