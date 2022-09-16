@@ -1,13 +1,11 @@
 - hosts: masters
   become: yes
+  become_user: ubuntu
   gather_facts: false
   tasks:
     - name: Add Ingress repository
       shell: "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
 
-    - name: Add Let's Encrypt repository
-      shell: "helm repo add jetstack https://charts.jetstack.io"
-    
     - name: Copying Ingress values file
       copy:
         src: "nginxvalues.yaml"
@@ -16,13 +14,5 @@
     - name: Installing Ingress
       shell: "helm install ingress-nginx -f /tmp/nginxvalues.yaml --namespace ingress-ns --create-namespace ingress-nginx/ingress-nginx"
 
-   - name: Installing Cert-manager helm
-     shell: "helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.1.0 --set installCRDs=true"
-
-   - name: Copying Cert-manager Values file
-     copy:
-       src: "issuer.yaml"
-       dest: "/tmp/issuer.yaml"
-
-   - name: applying Cert-manager conf
-     shell: "kubectl apply --namespace cert-manager -f /tmp/issuer.yaml" 
+    - name: Installing Cert-manager helm
+      shell: "helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.1.0 --set installCRDs=true"

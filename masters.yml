@@ -21,7 +21,7 @@
         dest: /home/ubuntu/.kube/config
         remote_src: yes
         owner: ubuntu
-        mode: 0755
+        mode: 0600
 
     - name: copy admin.conf to ansible host
       fetch:
@@ -45,4 +45,4 @@
       copy:
         src: "/opt/master/etc/kubernetes/admin.conf"
         dest: "~/.kube/config"
-        mode: 0755
+        mode: 0600

@@ -15,9 +15,8 @@ controller:
     ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
     ##
     externalIPs:
-      - 135.26.155.59
-      - 140.78.42.44
-      - 180.46.12.33
+      - 165.227.95.59
+      - 161.35.111.181
 
     enableHttp: true
     enableHttps: true
