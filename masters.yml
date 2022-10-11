@@ -2,7 +2,7 @@
   become: yes
   tasks:
     - name: Start the cluster
-      shell: kubeadm init --control-plane-endpoint cl1.codescalers-egypt.com --upload-certs --pod-network-cidr=10.244.0.0/16 --kubernetes-version=1.20.1 >> cluster.txt
+      shell: kubeadm init --control-plane-endpoint cl2.codescalers-egypt.com --upload-certs --pod-network-cidr=10.244.0.0/16 --kubernetes-version=1.20.1 >> cluster.txt
       args:
         chdir: $HOME
         creates: cluster.txt

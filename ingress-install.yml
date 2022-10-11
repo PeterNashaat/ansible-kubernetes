@@ -6,6 +6,9 @@
     - name: Add Ingress repository
       shell: "helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx"
 
+    - name: Add Cert-Manager repository
+      shell: "helm repo add jetstack https://charts.jetstack.io"
+
     - name: Copying Ingress values file
       copy:
         src: "nginxvalues.yaml"
@@ -16,3 +19,16 @@
 
     - name: Installing Cert-manager helm
       shell: "helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.1.0 --set installCRDs=true"
+
+    - name: wait for pods to come up
+      shell: kubectl get pods -o json -n cert-manager
+      register: kubectl_get_pods
+      until: kubectl_get_pods.stdout|from_json|json_query('items[*].status.phase')|unique == ["Running"]
+
+    - name: Copying Cert-manager values file
+      copy:
+        src: "issuer.yaml"
+        dest: "/tmp/issuer.yaml"
+
+    - name: Installing Cert-manager helm
+      shell: "kubectl apply --namespace cert-manager -f /tmp/issuer.yaml"
