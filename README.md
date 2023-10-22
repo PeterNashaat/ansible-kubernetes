@@ -15,7 +15,7 @@ Before you begin, ensure you have the following dependencies installed on your A
 1. Clone this repository to your Ansible control machine.
 
    ```bash
-   git clone https://github.com/yourusername/kubernetes-ansible.git
+   git clone https://github.com/PeterNashaat/ansible-kubernetes
    ```
 
 2. Navigate to the repository directory.
