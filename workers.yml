@@ -1,41 +1,29 @@
-- hosts: masters
-  become: yes
-  gather_facts: false
+- name: Join Kubernetes Workers
+  hosts: workers
+  become: true
   tasks:
-    - name: get join command
+    - name: Install kubeadm, kubelet, and kubectl
+      apt:
+        name:
+          - kubeadm
+          - kubelet
+          - kubectl
+        state: present
+        update_cache: true
+
+    - name: Fetch join command for workers
       shell: kubeadm token create --print-join-command
-      register: join_command_raw
+      delegate_to: master1
+      run_once: true
+      register: join_command
 
-    - name: set join command
-      set_fact:
-        join_command: "{{ join_command_raw.stdout_lines[0] }}"
+    - name: Join worker nodes to the cluster
+      command: "{{ join_command.stdout }}"
 
-
-- hosts: workers
-  become: yes
-  tasks:
-    - name: join cluster
-      shell: "{{ hostvars['master'].join_command }} >> node_joined.txt"
-      args:
-        chdir: $HOME
-        creates: node_joined.txt
-        
-- hosts: masters
-  become: yes
-  become_user: ubuntu
-  gather_facts: false
-  tasks:
-    - name: Enable deploying in master
-      shell: 
-           " kubectl taint nodes --all node-role.kubernetes.io/master-"
-      ignore_errors: True
-
-- hosts: masters
-  become: yes
-  become_user: root
-  tasks:
-   - name: Adding api server port range
-     lineinfile:
-       dest: "/etc/kubernetes/manifests/kube-apiserver.yaml"
-       insertafter: "service-cluster-ip-range"
-       line: "    - --service-node-port-range=50-64000"
+    - name: Remove master node taint to allow workloads
+      hosts: masters
+      become: true
+      tasks:
+        - name: Remove taint from master nodes
+          shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+          ignore_errors: true

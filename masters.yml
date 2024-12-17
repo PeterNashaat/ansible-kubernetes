@@ -1,48 +1,25 @@
-- hosts: masters
-  become: yes
+- name: Setup Kubernetes Masters
+  hosts: masters
+  become: true
   tasks:
-    - name: Start the cluster
-      shell: kubeadm init --control-plane-endpoint {{ cluster_domain }} --upload-certs --pod-network-cidr=10.244.0.0/16 --kubernetes-version=1.20.1 >> cluster.txt
-      args:
-        chdir: $HOME
-        creates: cluster.txt
+    - name: Install kubeadm, kubelet, and kubectl
+      apt:
+        name:
+          - kubeadm
+          - kubelet
+          - kubectl
+        state: present
+        update_cache: true
 
-    - name: create .kube directory
-      become: yes
-      become_user: ubuntu
-      file:
-        path: $HOME/.kube
-        state: directory
-        mode: 0755
+    - name: Initialize Kubernetes cluster on master1
+      command: kubeadm init --control-plane-endpoint "master1:6443" --upload-certs
+      when: inventory_hostname == "master1"
 
-    - name: copy admin.conf to user's kube config
-      copy:
-        src: /etc/kubernetes/admin.conf
-        dest: /home/ubuntu/.kube/config
-        remote_src: yes
-        owner: ubuntu
-        mode: 0600
+    - name: Fetch join command for control plane
+      shell: kubeadm token create --print-join-command --certificate-key $(kubeadm init phase upload-certs --upload-certs | tail -1)
+      run_once: true
+      register: join_command
 
-    - name: copy admin.conf to ansible host
-      fetch:
-        src: /etc/kubernetes/admin.conf
-        dest: /opt/
-
-
-    - name: install Pod network
-      become: yes
-      become_user: ubuntu
-      shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml >> pod_setup.txt
-      args:
-        chdir: $HOME
-        creates: pod_setup.txt
-
-- name: Ansible Host admin access 
-  hosts: 127.0.0.1
-  connection: local
-  tasks:
-    - name: Copy admin.conf to ansible host
-      copy:
-        src: "/opt/master/etc/kubernetes/admin.conf"
-        dest: "~/.kube/config"
-        mode: 0600
+    - name: Join other masters to the control plane
+      command: "{{ join_command.stdout }}"
+      when: inventory_hostname != "master1"

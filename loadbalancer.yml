@@ -1,0 +1,29 @@
+- name: Setup HAProxy Load Balancer
+  hosts: loadbalancer
+  become: true
+  tasks:
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+        state: present
+        update_cache: true
+
+    - name: Configure HAProxy for Kubernetes API Server
+      copy:
+        dest: /etc/haproxy/haproxy.cfg
+        content: |
+          frontend kubernetes
+              bind *:6443
+              default_backend k8s_masters
+
+          backend k8s_masters
+              balance roundrobin
+              server master1 {{ hostvars['master1']['ansible_host'] }}:6443 check
+              server master2 {{ hostvars['master2']['ansible_host'] }}:6443 check
+              server master3 {{ hostvars['master3']['ansible_host'] }}:6443 check
+
+    - name: Restart HAProxy
+      systemd:
+        name: haproxy
+        state: restarted
+        enabled: true

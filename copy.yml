@@ -1,4 +1,4 @@
-- hosts: masters
+- hosts: master1
   become: yes
   tasks:
     - name: copy admin.conf to ansible host

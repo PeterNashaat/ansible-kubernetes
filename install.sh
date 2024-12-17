@@ -1,21 +1,28 @@
 #!/bin/bash
 
-# Check if the cluster domain name argument is provided
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <cluster_domain_name>"
-  exit 1
-fi
+# Set up the Ansible inventory file
+INVENTORY_FILE="hosts"
+echo "[INFO] Using inventory file: $INVENTORY_FILE"
 
-# Get the cluster domain name from the command line argument
-cluster_domain="$1"
+# Step 1: Install HAProxy on Load Balancer
+echo "[INFO] Installing HAProxy Load Balancer..."
+ansible-playbook -i $INVENTORY_FILE loadbalancer.yml
 
-# Define the list of playbooks to run
-playbooks=("users.yml" "kube-install.yml" "masters.yml" "workers.yml" "ingress-install.yml")
+# Step 2: Setup Kubernetes Masters
+echo "[INFO] Setting up Kubernetes master nodes..."
+ansible-playbook -i $INVENTORY_FILE masters.yml
 
-# Loop through the playbooks and execute them
-for playbook in "${playbooks[@]}"; do
-  echo "INSTALLING $playbook"
-  ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts --extra-vars "cluster_domain=$cluster_domain" "$playbook"
-done
+# Step 3: Remove taints from master nodes
+echo "[INFO] Removing taints from master nodes..."
+ansible-playbook -i $INVENTORY_FILE workers.yml
 
-echo "All playbooks have been executed."
+# Step 4: Copy Kubernetes admin config to local machine
+echo "[INFO] Copying Kubernetes admin config to local machine..."
+ansible-playbook -i $INVENTORY_FILE copy_config.yml
+
+# Verify Kubernetes cluster
+echo "[INFO] Verifying the Kubernetes cluster..."
+kubectl get nodes
+
+echo "[SUCCESS] Kubernetes cluster setup is complete!"
+

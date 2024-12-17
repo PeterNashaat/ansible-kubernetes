@@ -1,8 +1,7 @@
+[loadbalancer]
+master1 ansible_host=185.69.166.158 ansible_user=<your-ssh-user>
+
 [masters]
-master ansible_host=134.122.27.141 ansible_user=root
-
-[workers]
-worker1 ansible_host=159.223.159.166 ansible_port=22 ansible_user=root
-
-[all:vars]
-ansible_python_interpreter=/usr/bin/python3
+master1 ansible_host=185.69.166.158 ansible_user=<your-ssh-user>
+master2 ansible_host=185.69.166.159 ansible_user=<your-ssh-user>
+master3 ansible_host=185.69.166.160 ansible_user=<your-ssh-user>
