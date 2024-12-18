@@ -2,11 +2,20 @@
   hosts: loadbalancer
   become: true
   tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+        state: present
+        update_cache: true
+
     - name: Install HAProxy
       apt:
         name: haproxy
         state: present
-        update_cache: true
 
     - name: Configure HAProxy for Kubernetes API Server
       copy:

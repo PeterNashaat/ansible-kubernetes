@@ -4,6 +4,8 @@
 INVENTORY_FILE="hosts"
 echo "[INFO] Using inventory file: $INVENTORY_FILE"
 
+export ANSIBLE_HOST_KEY_CHECKING=False
+
 # Step 1: Install HAProxy on Load Balancer
 echo "[INFO] Installing HAProxy Load Balancer..."
 ansible-playbook -i $INVENTORY_FILE loadbalancer.yml

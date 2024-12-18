@@ -2,6 +2,38 @@
   hosts: masters
   become: true
   tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+        state: present
+        update_cache: true
+
+    - name: Create directory for Kubernetes keyring
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes APT key
+      shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes APT repository
+      shell: |
+        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
+      args:
+        creates: /etc/apt/sources.list.d/kubernetes.list
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+
     - name: Install kubeadm, kubelet, and kubectl
       apt:
         name:
@@ -9,7 +41,9 @@
           - kubelet
           - kubectl
         state: present
-        update_cache: true
+
+    - name: Hold Kubernetes packages
+      command: apt-mark hold kubeadm kubelet kubectl
 
     - name: Initialize Kubernetes cluster on master1
       command: kubeadm init --control-plane-endpoint "master1:6443" --upload-certs
@@ -23,3 +57,4 @@
     - name: Join other masters to the control plane
       command: "{{ join_command.stdout }}"
       when: inventory_hostname != "master1"
+
